@@ -8,6 +8,8 @@ function initWidget(containerId, props = {}) {
   const container = document.getElementById(containerId);
   if (!container) return console.error(`Container #${containerId} not found`);
 
+  console.log("props*****************************", props);
+
   const root = ReactDOM.createRoot(container);
   root.render(<App {...props} />);
 }
@@ -20,5 +22,8 @@ if (process.env.NODE_ENV === "development") {
   demoContainer.id = "bere-plus--widget-container";
   document.body.appendChild(demoContainer);
 
-  initWidget("bere-plus--widget-container", { demo: true });
+  initWidget("bere-plus--widget-container", {
+    className: "absolute left-0 z-50",
+    auth: { status: true, level: 1 },
+  });
 }
