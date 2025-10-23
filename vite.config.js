@@ -1,25 +1,28 @@
 // vite.config.js
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import path from "path";
 
 export default defineConfig({
   plugins: [react()],
   build: {
     outDir: "dist",
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, "index.html"), // ✅ Include demo page
+      },
+      output: {
+        entryFileNames: "bere-plus-widget.umd.js",
+        assetFileNames: "bere-plus-widget.[ext]",
+        format: "umd",
+        name: "BerePlusWidget",
+      },
+    },
     lib: {
-      entry: "src/main.jsx",
+      entry: path.resolve(__dirname, "src/main.tsx"),
       name: "BerePlusWidget",
       fileName: (format) => `bere-plus-widget.${format}.js`, // <- dynamic extension
       formats: ["umd"], // make it embeddable
-    },
-    rollupOptions: {
-      external: ["react", "react-dom"], // do not bundle
-      output: {
-        globals: {
-          react: "React",
-          "react-dom": "ReactDOM",
-        },
-      },
     },
     minify: "esbuild", // ensure minification
   },
