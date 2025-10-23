@@ -1,4 +1,6 @@
+import React from "react";
 import { BEREPLUSWidget } from "./components/BEREPLUSWidget";
+import "./index.css";
 
 function App({ position = {}, auth }) {
   const { offset, top, bottom, right, left } = position;

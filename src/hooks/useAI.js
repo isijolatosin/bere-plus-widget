@@ -1,16 +1,13 @@
 import { useState, useEffect } from "react";
-import { getUserLocation } from "./getUserLocation";
-import { isIMGUrlWorking } from "../utils/isIMGUrlWorking";
+import { getUserLocation } from "./getUserLocation.js";
+import { isIMGUrlWorking } from "../utils/isIMGUrlWorking.js";
 
 export const useAI = (auth) => {
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState(null);
   const [error, setError] = useState(null);
 
-  const api_url =
-    import.meta.env.MODE === "development"
-      ? "/api" // Vite dev proxy
-      : import.meta.env.VITE_BERE_PLUS_API;
+  const api_url = "https://bere-plus.onrender.com";
 
   const sendQuery = async (query) => {
     setLoading(true);

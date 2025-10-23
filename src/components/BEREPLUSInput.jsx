@@ -1,3 +1,4 @@
+import React from "react";
 import { useEffect, useRef, useState } from "react";
 import { ClipLoader } from "react-spinners";
 

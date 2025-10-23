@@ -1,3 +1,4 @@
+import React from "react";
 import {
   intentBorderClasses,
   intentColorClasses,
@@ -47,7 +48,6 @@ const BEREPLUSAIResponse = ({ response }) => {
 
         {Array.isArray(currentResponse.response) &&
           currentResponse.response.map((resp, idx) => {
-            console.log("resp?.image_url", resp?.image_url);
             return (
               <div
                 key={idx}

@@ -1,8 +1,10 @@
+import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
-import "./index.css";
+import "./index.css"; // Tailwind styles
 
-export function initWidget(containerId, props = {}) {
+// Function to initialize widget anywhere
+function initWidget(containerId, props = {}) {
   const container = document.getElementById(containerId);
   if (!container) {
     console.error(`Container #${containerId} not found`);
@@ -13,7 +15,13 @@ export function initWidget(containerId, props = {}) {
   root.render(<App {...props} />);
 }
 
-// Attach to window for UMD usage
-if (typeof window !== "undefined") {
-  window.BerePlusWidget = { initWidget };
-}
+// Expose globally for embedding
+window.BerePlusWidget = {
+  initWidget,
+};
+
+// Automatically render for demo in dev
+initWidget("bere-plus--widget-container", {
+  position: { offset: "absolute", bottom: "bottom-0", left: "left-0" },
+  auth: { status: true, level: 2 },
+});
