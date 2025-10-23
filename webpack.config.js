@@ -4,7 +4,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 
 module.exports = {
-  mode: "development", // use 'production' when building for deployment
+  mode: process.env.NODE_ENV || "production",
   entry: "./src/main.jsx",
   output: {
     path: path.resolve(__dirname, "dist"),
@@ -35,6 +35,11 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, "public/index.html"), // demo page
       inject: "body",
+    }),
+    new webpack.DefinePlugin({
+      "process.env.NODE_ENV": JSON.stringify(
+        process.env.NODE_ENV || "production"
+      ),
     }),
   ],
   devServer: {
