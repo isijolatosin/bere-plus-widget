@@ -8,8 +8,6 @@ function initWidget(containerId, props = {}) {
   const container = document.getElementById(containerId);
   if (!container) return console.error(`Container #${containerId} not found`);
 
-  console.log("props*****************************", props);
-
   const root = ReactDOM.createRoot(container);
   root.render(<App {...props} />);
 }
