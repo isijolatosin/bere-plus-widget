@@ -9,7 +9,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "bere-plus-widget.js",
-    library: "BerePlusWidget", // global variable when loaded via <script>
+    library: "WEB_CDN_BERE_PLUS_WIDGET", // global variable when loaded via <script>
     libraryTarget: "umd",
     globalObject: "this", // ensures compatibility in browser
     clean: true, // clean dist folder before build
@@ -35,13 +35,6 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, "public/index.html"), // demo page
       inject: "body",
-    }),
-    new webpack.DefinePlugin({
-      "process.env": {
-        REACT_API_BERE_PLUS_API: JSON.stringify(
-          process.env.REACT_API_BERE_PLUS_API
-        ),
-      },
     }),
   ],
   devServer: {

@@ -16,7 +16,7 @@ function initWidget(containerId, props = {}) {
 }
 
 // Expose globally for embedding
-window.BerePlusWidget = {
+window.WEB_CDN_BERE_PLUS_WIDGET = {
   initWidget,
 };
 
