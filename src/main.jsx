@@ -22,6 +22,6 @@ window.BerePlusWidget = {
 
 // Automatically render for demo in dev
 initWidget("bere-plus--widget-container", {
-  position: { offset: "absolute", bottom: "bottom-0", left: "left-0" },
+  className: "absolute bottom-10 left-0 z-50",
   auth: { status: true, level: 2 },
 });
