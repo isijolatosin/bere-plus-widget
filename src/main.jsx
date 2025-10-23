@@ -21,9 +21,7 @@ window.WEB_CDN_BERE_PLUS_WIDGET = {
 };
 
 // Automatically render for demo in dev
-if (process.env.NODE_ENV === "development") {
-  initWidget("bere-plus--widget-container", {
-    className: "absolute bottom-0 left-0 z-50",
-    auth: { status: true, level: 2 },
-  });
-}
+initWidget("bere-plus--widget-container", {
+  className: "absolute bottom-0 left-0 z-50",
+  auth: { status: true, level: 2 },
+});
