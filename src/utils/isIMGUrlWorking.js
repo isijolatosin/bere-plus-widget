@@ -3,7 +3,7 @@
  * @param url The URL to test
  * @returns Promise<boolean> true if URL is reachable, false otherwise
  */
-export async function isIMGUrlWorking(url: string): Promise<boolean> {
+export async function isIMGUrlWorking(url) {
   return new Promise((resolve) => {
     const img = new Image();
     img.src = url;

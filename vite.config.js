@@ -6,12 +6,13 @@ export default defineConfig({
   plugins: [react()],
   build: {
     lib: {
-      entry: "src/main.tsx",
+      entry: "src/main.jsx",
       name: "BerePlusWidget",
-      fileName: "bere-plus-widget",
+      fileName: (format) => `bere-plus-widget.${format}.js`, // <- dynamic extension
       formats: ["umd"], // make it embeddable
     },
     rollupOptions: {
+      external: ["react", "react-dom"], // do not bundle
       output: {
         globals: {
           react: "React",
@@ -19,8 +20,10 @@ export default defineConfig({
         },
       },
     },
+    minify: "esbuild", // ensure minification
   },
   server: {
+    open: true, // auto-open index.html
     proxy: {
       "/api": {
         target: "https://bere-plus.onrender.com",

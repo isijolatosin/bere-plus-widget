@@ -1,34 +1,14 @@
-import {
-  useEffect,
-  useRef,
-  useState,
-  type FC,
-  type FormEvent,
-  type RefObject,
-} from "react";
+import { useEffect, useRef, useState } from "react";
 import { ClipLoader } from "react-spinners";
 
-interface BEREPLUSInputProps {
-  textareaRef: RefObject<HTMLTextAreaElement | null>;
-  loading: boolean;
-  sendQuery: (input: string) => void; // added type for sendQuery
-}
-
-const BEREPLUSInput: FC<BEREPLUSInputProps> = ({
-  textareaRef,
-  loading,
-  sendQuery,
-}) => {
+const BEREPLUSInput = ({ textareaRef, loading, sendQuery }) => {
   const [input, setInput] = useState("");
   const [isListening, setIsListening] = useState(false);
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef(null);
 
   useEffect(() => {
-    // Use either prefixed or unprefixed API
     const SpeechRecognition =
-      (window as any).SpeechRecognition ||
-      (window as any).webkitSpeechRecognition;
-
+      window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
       alert("Sorry, your browser does not support Speech Recognition.");
       return;
@@ -37,18 +17,17 @@ const BEREPLUSInput: FC<BEREPLUSInputProps> = ({
     const recognition = new SpeechRecognition();
     recognition.lang = "en-US";
     recognition.interimResults = true;
-    recognition.continuous = false; // set true if you want ongoing detection
+    recognition.continuous = false;
     recognitionRef.current = recognition;
 
-    // When speech is recognized
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
+    recognition.onresult = (event) => {
       const transcript = Array.from(event.results)
-        .map((result: any) => result[0].transcript)
+        .map((result) => result[0].transcript)
         .join("");
       setInput(transcript);
     };
 
-    recognition.onerror = (event: { error: any }) => {
+    recognition.onerror = (event) => {
       console.error("Speech recognition error:", event.error);
       setIsListening(false);
     };
@@ -76,26 +55,23 @@ const BEREPLUSInput: FC<BEREPLUSInputProps> = ({
   const override = {
     display: "block",
     margin: "0 auto",
-    borderColor: "text-white",
+    borderColor: "#fff",
   };
 
   useEffect(() => {
     const el = textareaRef.current;
     if (!el) return;
 
-    el.style.height = "auto"; // Reset height before recalculating
-    const maxHeight = el.scrollHeight; // full height needed for content
-
-    // Calculate height for 2 lines
-    const lineHeight = parseInt(window.getComputedStyle(el).lineHeight);
+    el.style.height = "auto";
+    const maxHeight = el.scrollHeight;
+    const lineHeight = parseInt(window.getComputedStyle(el).lineHeight) || 20;
     const maxAllowedHeight = lineHeight * 2;
-
-    // Apply the smaller of the two
     el.style.height = Math.min(maxHeight, maxAllowedHeight) + "px";
   }, [input]);
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
+    if (!input.trim()) return;
 
     sessionStorage.setItem("ai_input_prompt", input);
     sendQuery(input);
@@ -147,7 +123,7 @@ const BEREPLUSInput: FC<BEREPLUSInputProps> = ({
             ref={textareaRef}
             rows={1}
             disabled={loading || isListening}
-            className="resize-none border-none p-0 bg-transparent w-full h-full outline-none no-scrollbar tracking-wider font-thin"
+            className="resize-none border-none p-0 bg-transparent w-full h-full outline-none no-scrollbar tracking-wider font-thin break-words"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your question..."

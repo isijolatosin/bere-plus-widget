@@ -1,4 +1,4 @@
-export const Emotions: Record<string, string> = {
+export const Emotions = {
   happy: "😄",
   joyful: "😊",
   excited: "🤩",

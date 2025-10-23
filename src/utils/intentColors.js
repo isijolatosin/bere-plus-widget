@@ -1,4 +1,4 @@
-export const intentBorderClasses: Record<string, string> = {
+export const intentBorderClasses = {
   person: "border-pink-500/50",
   tech: "border-blue-500/50",
   emotion: "border-rose-500/50",
@@ -7,7 +7,7 @@ export const intentBorderClasses: Record<string, string> = {
   other: "border-neutral-500/50",
 };
 
-export const intentRingClasses: Record<string, string> = {
+export const intentRingClasses = {
   person: "ring-pink-500/20",
   tech: "ring-blue-500/20",
   emotion: "ring-rose-500/20",
@@ -16,7 +16,7 @@ export const intentRingClasses: Record<string, string> = {
   other: "ring-neutral-500/20",
 };
 
-export const intentColorClasses: Record<string, string> = {
+export const intentColorClasses = {
   person: "text-pink-500/10",
   tech: "text-blue-500/10",
   emotion: "text-rose-500/10",

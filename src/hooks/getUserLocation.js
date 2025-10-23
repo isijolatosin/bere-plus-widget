@@ -1,16 +1,5 @@
-export interface UserLocation {
-  latitude: number | null;
-  longitude: number | null;
-  city: string;
-  country: string;
-  source: "gps" | "ip-based" | "none";
-}
-
-export const getUserLocation = async (
-  api_url: string
-): Promise<UserLocation> => {
-  // Helper to call backend fallback
-  const fetchIPLocation = async (): Promise<UserLocation> => {
+export const getUserLocation = async (api_url) => {
+  const fetchIPLocation = async () => {
     try {
       const res = await fetch(`${api_url}/get-location`);
       if (!res.ok) throw new Error("Failed to fetch IP location");
@@ -29,7 +18,7 @@ export const getUserLocation = async (
     }
   };
 
-  return new Promise<UserLocation>((resolve) => {
+  return new Promise((resolve) => {
     if (!navigator.geolocation) {
       console.warn("Geolocation not supported — using IP fallback");
       fetchIPLocation()
@@ -47,14 +36,14 @@ export const getUserLocation = async (
     }
 
     navigator.geolocation.getCurrentPosition(
-      async (position: GeolocationPosition) => {
+      async (position) => {
         try {
           const { latitude, longitude } = position.coords;
 
           const res = await fetch(
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
           );
-          const data: any = await res.json();
+          const data = await res.json();
 
           const city =
             data?.address?.city ||
@@ -84,18 +73,19 @@ export const getUserLocation = async (
           );
         }
       },
-      async (error: GeolocationPositionError) => {
+      (error) => {
         console.warn(`Geolocation error (${error.code}): ${error.message}`);
-        const ipData = await fetchIPLocation().catch(() => null);
-        resolve(
-          ipData ?? {
-            latitude: null,
-            longitude: null,
-            city: "Unknown City",
-            country: "Unknown Country",
-            source: "none",
-          }
-        );
+        fetchIPLocation()
+          .then(resolve)
+          .catch(() =>
+            resolve({
+              latitude: null,
+              longitude: null,
+              city: "Unknown City",
+              country: "Unknown Country",
+              source: "none",
+            })
+          );
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );

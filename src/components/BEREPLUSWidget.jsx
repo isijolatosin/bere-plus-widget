@@ -2,17 +2,13 @@ import { useMemo, useRef } from "react";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
 
-import { useAI, type AuthProp } from "../hooks/useAI";
+import { useAI } from "../hooks/useAI";
 import FadeInSection from "./Framer";
 import BEREPLUSAIResponse from "./BEREPLUSAIResponse";
 import BEREPLUSInput from "./BEREPLUSInput";
 
-interface WidgetProp {
-  auth: AuthProp;
-}
-
-export const BEREPLUSWidget = ({ auth }: WidgetProp) => {
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+export const BEREPLUSWidget = ({ auth }) => {
+  const textareaRef = useRef(null); // fixed
   const { sendQuery, response, loading, error } = useAI(auth);
 
   const MemoizedResponse = useMemo(
