@@ -1,24 +1,15 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import "./index.css";
+import React from "react";
+import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
+import "./index.css";
 
-const position = {
-  offset: "absolute",
-  // top: "top-0",
-  bottom: "bottom-0",
-  // right: "right-0",
-  left: "left-0",
-};
+export function initWidget(containerId, props = {}) {
+  const container = document.getElementById(containerId);
+  if (!container) {
+    console.error(`Container #${containerId} not found`);
+    return;
+  }
 
-const auth = {
-  status: true,
-  level: 2,
-  intent: "",
-};
-
-createRoot(document.getElementById("root")).render(
-  <StrictMode>
-    <App position={position || {}} auth={auth} />
-  </StrictMode>
-);
+  const root = ReactDOM.createRoot(container);
+  root.render(<App {...props} />);
+}

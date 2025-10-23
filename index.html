@@ -7,7 +7,21 @@
     <title>bp-widget</title>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <div id="bere-plus-widget-container"></div>
+    <script type="module">
+      import { initWidget } from "./src/main.jsx";
+
+      // Call the function to render the widget
+      initWidget("bere-plus-widget-container", {
+        position: {
+          offset: "absolute",
+          bottom: "bottom-0",
+          left: "left-0",
+          right: "",
+          top: "",
+        },
+        auth: { status: true, level: 2, intent: "" },
+      });
+    </script>
   </body>
 </html>

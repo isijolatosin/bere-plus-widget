@@ -1,13 +1,7 @@
 import { BEREPLUSWidget } from "./components/BEREPLUSWidget";
 
 function App({ position = {}, auth }) {
-  const {
-    offset = "absolute",
-    bottom = "top-0",
-    top = "",
-    left = "left-0",
-    right = "",
-  } = position;
+  const { offset, top, bottom, right, left } = position;
 
   return (
     <div
