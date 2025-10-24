@@ -9,7 +9,7 @@ function App({
 }) {
   return (
     <div className={`${wrapperClassnames}`}>
-      <div className={`z-50 ${providedClassnames}`}>
+      <div className={`${providedClassnames}`}>
         <BEREPLUSWidget auth={auth} />
       </div>
     </div>
