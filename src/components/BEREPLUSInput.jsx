@@ -83,8 +83,9 @@ const BEREPLUSInput = ({ textareaRef, loading, sendQuery }) => {
     return (
       <div
         className="
-        absolute top-[-40%]
-        left-0
+        absolute 
+        top-[-40%]
+        left-0 z-20
         text-sm font-thin
         bg-gradient-text bg-200%
         bg-clip-text text-transparent
@@ -98,7 +99,7 @@ const BEREPLUSInput = ({ textareaRef, loading, sendQuery }) => {
 
   return (
     <div className="relative rounded-lg text-white/50 bg-black border-2 border-white/10 py-1 px-4 flex items-center justify-between">
-      {true && <ThinkingText />}
+      {loading && <ThinkingText />}
       {isListening ? (
         <svg
           xmlns="http://www.w3.org/2000/svg"
