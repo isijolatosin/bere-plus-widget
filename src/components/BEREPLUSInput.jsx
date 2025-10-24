@@ -103,7 +103,7 @@ const BEREPLUSInput = ({ textareaRef, loading, sendQuery }) => {
   };
 
   return (
-    <div className="relative rounded-lg mb-14 mx-2 sm:mb-0 sm:mx-0 text-white/50 bg-black border-2 border-white/10 py-1 px-4 flex items-center justify-between">
+    <div className="relative rounded-lg mb-24 mx-2 sm:mb-0 sm:mx-0 text-white/50 bg-black border-2 border-white/10 py-1 px-4 flex items-center justify-between">
       {loading && <ThinkingText />}
       {isListening ? (
         <svg
