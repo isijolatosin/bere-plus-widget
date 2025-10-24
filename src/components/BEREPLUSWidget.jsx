@@ -18,7 +18,7 @@ export const BEREPLUSWidget = ({ auth }) => {
   );
 
   return (
-    <div className="w-full sm:w-[30rem] font-saira font-thin text-sm">
+    <div className="w-[100%] font-saira font-thin text-sm">
       {error && (
         <FadeInSection>
           <div className="mb-2 rounded-full bg-black mx-auto w-full">
@@ -33,7 +33,7 @@ export const BEREPLUSWidget = ({ auth }) => {
         placement="top"
         visible={!!response}
         animation="fade"
-        duration={1000}
+        duration={3000}
         arrow={true}
         interactive={true}
       >

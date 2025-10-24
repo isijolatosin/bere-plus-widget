@@ -21,7 +21,10 @@ if (process.env.NODE_ENV === "development") {
   document.body.appendChild(demoContainer);
 
   initWidget("bere-plus--widget-container", {
-    className: "absolute left-0 z-50",
+    classNames:
+      "h-[100vh] w-full sm:w-[80%] max-w-[550px] flex items-start z-50",
+    wrapperClassnames:
+      "w-full h-full bg-black/80 flex justify-end overflow-hidden",
     auth: { status: true, level: 1 },
   });
 }

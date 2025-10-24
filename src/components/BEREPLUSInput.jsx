@@ -80,7 +80,7 @@ const BEREPLUSInput = ({ textareaRef, loading, sendQuery }) => {
   };
 
   return (
-    <div className="rounded-full text-white/50 bg-black border-2 border-white/10 py-1 px-4 flex items-center justify-between overflow-hidden">
+    <div className="rounded-lg text-white/50 bg-black border-2 border-white/10 py-1 px-4 flex items-center justify-between overflow-hidden">
       {isListening ? (
         <svg
           xmlns="http://www.w3.org/2000/svg"
