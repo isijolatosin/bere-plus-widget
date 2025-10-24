@@ -154,7 +154,7 @@ const BEREPLUSInput = ({ textareaRef, loading, sendQuery }) => {
             className="resize-none border-none p-0 bg-transparent w-full h-full outline-none no-scrollbar tracking-wider font-thin break-words"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Type your question..."
+            placeholder={"Ask on..."}
           />
         </div>
 
