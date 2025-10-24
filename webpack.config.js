@@ -36,11 +36,6 @@ module.exports = {
       template: path.resolve(__dirname, "public/index.html"), // demo page
       inject: "body",
     }),
-    new webpack.DefinePlugin({
-      "process.env.NODE_ENV": JSON.stringify(
-        process.env.NODE_ENV || "production"
-      ),
-    }),
   ],
   devServer: {
     static: {
