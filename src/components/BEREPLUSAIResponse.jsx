@@ -17,7 +17,7 @@ const BEREPLUSAIResponse = ({ response }) => {
   if (!currentResponse) return null;
 
   return (
-    <div className="rounded-lg border border-white/10 bg-neutral-900 px-4 pt-4 pb-6  h-[90vh]  overflow-scroll no-scrollbar text-sm leading-5 text-white/50">
+    <div className="rounded-lg border border-white/10 bg-neutral-900 px-4 pt-4 pb-6 h-[70vh] sm:h-[90vh] overflow-scroll no-scrollbar text-sm leading-5 text-white/50">
       <div className="w-full flex pb-3 mb-5 border-b-[0.5px] border-white/10">
         <p className="bg-white/10 w-fit px-2 py-1 rounded-lg rounded-br-none items-end ml-auto">
           {aiInputPrompt}
