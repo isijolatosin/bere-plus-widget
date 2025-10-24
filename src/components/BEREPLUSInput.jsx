@@ -155,7 +155,11 @@ const BEREPLUSInput = ({ textareaRef, loading, sendQuery }) => {
           />
         </div>
 
-        <button className="w-fit" type="submit" disabled={loading}>
+        <button
+          className="w-fit"
+          type="submit"
+          disabled={loading || isListening}
+        >
           {loading ? (
             <ClipLoader
               color="#fff"
