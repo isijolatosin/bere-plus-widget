@@ -18,7 +18,7 @@ const BEREPLUSInput = ({ textareaRef, loading, sendQuery }) => {
     const recognition = new SpeechRecognition();
     recognition.lang = "en-US";
     recognition.interimResults = true;
-    recognition.continuous = false;
+    recognition.continuous = true;
     recognitionRef.current = recognition;
 
     recognition.onresult = (event) => {
@@ -34,7 +34,12 @@ const BEREPLUSInput = ({ textareaRef, loading, sendQuery }) => {
     };
 
     recognition.onend = () => {
-      setIsListening(false);
+      if (isListening) {
+        // auto-restart if user wants to keep listening
+        recognition.start();
+      } else {
+        setIsListening(false);
+      }
     };
   }, []);
 
