@@ -103,7 +103,7 @@ const BEREPLUSInput = ({ textareaRef, loading, sendQuery }) => {
   };
 
   return (
-    <div className="relative rounded-lg mb-24 mx-2 sm:mb-0 sm:mx-0 text-white/50 bg-black border-2 border-white/10 py-1 px-4 flex items-center justify-between">
+    <div className="relative rounded-lg text-white/50 bg-black border-2 border-white/10 py-1 px-4 flex items-center justify-between">
       {loading && <ThinkingText />}
       {isListening ? (
         <svg
@@ -145,9 +145,12 @@ const BEREPLUSInput = ({ textareaRef, loading, sendQuery }) => {
       >
         <div className="textArea flex items-center w-full h-full px-1 bg-transparent">
           <textarea
+            id="chat_bot"
             ref={textareaRef}
             rows={1}
-            disabled={loading || isListening}
+            disabled={
+              loading || isListening || window.matchMedia("(max-width:576px)")
+            }
             className="resize-none border-none p-0 bg-transparent w-full h-full outline-none no-scrollbar tracking-wider font-thin break-words"
             value={input}
             onChange={(e) => setInput(e.target.value)}
