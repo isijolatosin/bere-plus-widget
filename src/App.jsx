@@ -6,12 +6,14 @@ function App({
   classNames: providedClassnames = "",
   wrapperClassnames = "",
   auth,
+  children,
 }) {
   return (
-    <div className={`${wrapperClassnames}`}>
-      <div className={`${providedClassnames}`}>
+    <div className={wrapperClassnames}>
+      <div className={providedClassnames}>
         <BEREPLUSWidget auth={auth} />
       </div>
+      {children}
     </div>
   );
 }
