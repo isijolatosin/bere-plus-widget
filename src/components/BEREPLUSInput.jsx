@@ -6,6 +6,7 @@ const BEREPLUSInput = ({ textareaRef, loading, sendQuery }) => {
   const [input, setInput] = useState("");
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef(null);
+  const isMobile = window.matchMedia("(max-width:576px)").matches;
 
   useEffect(() => {
     const SpeechRecognition =
@@ -148,9 +149,7 @@ const BEREPLUSInput = ({ textareaRef, loading, sendQuery }) => {
             id="chat_bot"
             ref={textareaRef}
             rows={1}
-            disabled={
-              loading || isListening || window.matchMedia("(max-width:576px)")
-            }
+            disabled={loading || isListening || isMobile}
             className="resize-none border-none p-0 bg-transparent w-full h-full outline-none no-scrollbar tracking-wider font-thin break-words"
             value={input}
             onChange={(e) => setInput(e.target.value)}
