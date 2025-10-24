@@ -79,8 +79,26 @@ const BEREPLUSInput = ({ textareaRef, loading, sendQuery }) => {
     setInput("");
   };
 
+  const ThinkingText = () => {
+    return (
+      <div
+        className="
+        absolute top-[-40%]
+        left-0
+        text-sm font-thin
+        bg-gradient-text bg-200%
+        bg-clip-text text-transparent
+        animate-gradient-move
+      "
+      >
+        Thinking...
+      </div>
+    );
+  };
+
   return (
-    <div className="rounded-lg text-white/50 bg-black border-2 border-white/10 py-1 px-4 flex items-center justify-between overflow-hidden">
+    <div className="relative rounded-lg text-white/50 bg-black border-2 border-white/10 py-1 px-4 flex items-center justify-between">
+      {true && <ThinkingText />}
       {isListening ? (
         <svg
           xmlns="http://www.w3.org/2000/svg"

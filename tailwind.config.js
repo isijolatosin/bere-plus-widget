@@ -6,6 +6,21 @@ export default {
   content: ["./src/**/*.{js,jsx}", "./public/index.html"],
   theme: {
     extend: {
+      backgroundImage: {
+        "gradient-text": "linear-gradient(90deg, #9ca3af, #d1d5db, #6b7280)",
+      },
+      backgroundSize: {
+        "200%": "200%",
+      },
+      animation: {
+        "gradient-move": "gradient-move 3s ease infinite",
+      },
+      keyframes: {
+        "gradient-move": {
+          "0%, 100%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+        },
+      },
       fontFamily: {
         saira: ["Saira", "sans-serif"],
         ibm: ["IBM Plex Mono", "sans-serif"],
