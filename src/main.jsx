@@ -4,7 +4,7 @@ import App from "./App.jsx";
 import "./index.css"; // Tailwind styles
 
 // Function to initialize widget anywhere
-function initWidget(containerId, children, props = {}) {
+function initWidget(containerId, props = {}, children) {
   const container = document.getElementById(containerId);
   if (!container) return console.error(`Container #${containerId} not found`);
 
@@ -20,7 +20,7 @@ if (process.env.NODE_ENV === "development") {
   demoContainer.id = "bere-plus--widget-container";
   document.body.appendChild(demoContainer);
 
-  const Icon = ({ classnames }) => (
+  const Icon = ({ classnames, onclick }) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
@@ -28,6 +28,7 @@ if (process.env.NODE_ENV === "development") {
       strokeWidth={1.5}
       stroke="currentColor"
       className={classnames}
+      onClick={onclick}
     >
       <path
         strokeLinecap="round"
@@ -39,7 +40,10 @@ if (process.env.NODE_ENV === "development") {
 
   initWidget(
     "bere-plus--widget-container",
-    <Icon classnames="size-6 absolute top-0 left-0 text-white z-10" />,
+    <Icon
+      onclick={() => console.log("first")}
+      classnames="w-6 h-6 absolute top-0 right-0 mr-5 mt-2 text-white/50 z-10 cursor-pointer hover:text-white/30 transition-all duration-300"
+    />,
     {
       classNames: "h-[100vh] w-full sm:w-[80%] max-w-[550px] flex items-end",
       wrapperClassnames:
