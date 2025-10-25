@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useMemo, useRef } from "react";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
@@ -10,12 +10,63 @@ import BEREPLUSInput from "./BEREPLUSInput";
 
 export const BEREPLUSWidget = ({ auth }) => {
   const textareaRef = useRef(null); // fixed
+  const [responseData, setResponsedata] = useState([]);
   const { sendQuery, response, loading, error } = useAI(auth);
+  const aiInputPrompt = JSON.parse(sessionStorage.getItem("ai_input_prompt"));
+  let responseArray = [];
 
-  const MemoizedResponse = useMemo(
-    () => <BEREPLUSAIResponse response={response} />,
-    [response]
-  );
+  useEffect(() => {
+    // Get stored data
+    const storedData = sessionStorage.getItem("ai_response_data");
+    if (storedData) {
+      try {
+        const parsed = JSON.parse(storedData);
+
+        if (Array.isArray(parsed)) {
+          // Already an array
+          setResponsedata(parsed);
+        } else if (parsed && typeof parsed === "object") {
+          // It's a single object
+          setResponsedata([parsed]);
+        } else {
+          setResponsedata([]);
+        }
+      } catch (e) {
+        console.error("Failed to parse stored AI response data:", e);
+        setResponsedata([]);
+      }
+    }
+  }, [response]);
+
+  // Memoize the rendered list of responses
+  useEffect(() => {
+    const lastId = `${responseData.length - 1}_id`;
+    const lastElement = document.getElementById(lastId);
+
+    if (lastElement) {
+      lastElement.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [responseData]);
+
+  const MemoizedResponse = useMemo(() => {
+    return (
+      <div className="rounded-lg border border-white/10 bg-neutral-900 px-4 py-4 h-[70vh] sm:h-[90vh] overflow-scroll no-scrollbar text-sm leading-5 text-white/50 flex flex-col">
+        {responseData?.map((res, index) => (
+          <>
+            <div id={`${index}_id`} className="w-full flex py-5">
+              <p className="bg-white/15 w-fit px-2 py-1 rounded-lg rounded-br-none items-end ml-auto">
+                {aiInputPrompt?.[index]}
+              </p>
+            </div>
+            <BEREPLUSAIResponse key={index} response={res} />
+          </>
+        ))}
+      </div>
+    );
+  }, [responseArray]);
 
   return (
     <div className="w-[100%] font-saira font-thin text-sm">
@@ -31,7 +82,7 @@ export const BEREPLUSWidget = ({ auth }) => {
       <Tippy
         content={MemoizedResponse}
         placement="top"
-        visible={!!response}
+        visible={responseData?.length > 0}
         animation="fade"
         duration={3000}
         arrow={true}

@@ -7,6 +7,7 @@ export const Emotions = {
   surprise: "😲",
   shocked: "😱",
   curious: "🤔",
+  curiosity: "🤔",
   confused: "😕",
   sad: "😢",
   lonely: "😔",
@@ -33,4 +34,5 @@ export const Emotions = {
   skeptical: "🤨",
   conflicted: "😬",
   surprised_happy: "😮‍💨",
+  enthusiastic: "🤩",
 };

@@ -66,7 +66,15 @@ export const useAI = (auth) => {
 
   useEffect(() => {
     if (response) {
-      sessionStorage.setItem("ai_response_data", JSON.stringify(response));
+      const existingData =
+        JSON.parse(sessionStorage.getItem("ai_response_data")) || [];
+
+      // Convert to array if it's an object
+      const updatedData = Array.isArray(existingData)
+        ? [...existingData, response]
+        : [existingData, response];
+
+      sessionStorage.setItem("ai_response_data", JSON.stringify(updatedData));
     }
   }, [response]);
 

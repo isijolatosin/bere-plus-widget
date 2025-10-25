@@ -80,7 +80,17 @@ const BEREPLUSInput = ({ textareaRef, loading, sendQuery }) => {
     e.preventDefault();
     if (!input.trim()) return;
 
-    sessionStorage.setItem("ai_input_prompt", input);
+    const inputData = JSON.parse(sessionStorage.getItem("ai_input_prompt"));
+
+    if (inputData?.length > 0) {
+      sessionStorage.setItem(
+        "ai_input_prompt",
+        JSON.stringify([...inputData, input])
+      );
+    } else {
+      sessionStorage.setItem("ai_input_prompt", JSON.stringify([input]));
+    }
+
     sendQuery(input);
     setInput("");
   };
