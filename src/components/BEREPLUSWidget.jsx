@@ -45,10 +45,8 @@ export const BEREPLUSWidget = ({ auth }) => {
         console.error("Failed to parse stored AI response data:", e);
         setResponsedata([]);
       }
-    } else {
-      if (streamingData) {
-        setResponsedata(streamingData);
-      }
+    } else if (streamingData && isStreaming) {
+      setResponsedata(streamingData);
     }
   }, [response]);
 
@@ -84,11 +82,11 @@ export const BEREPLUSWidget = ({ auth }) => {
             responseData?.map((res, index) => (
               <div key={index} id={`${index}_id`}>
                 <div className="w-full flex py-5">
-                  <p className="bg-white/15 w-fit px-2 py-1 rounded-lg rounded-br-none items-end ml-auto">
+                  <p className="bg-white/5 w-fit px-2 py-1 rounded-lg rounded-br-none items-end ml-auto">
                     {aiStreamingPrompt?.[index]}
                   </p>
                 </div>
-                <div>
+                <div className="border-t-[0.5px] border-white/5 py-1">
                   {res?.split("\n\n").map((r, idx) => (
                     <p key={`0_${idx}`} className="my-3">
                       {r}
