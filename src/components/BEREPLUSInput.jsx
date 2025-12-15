@@ -2,7 +2,7 @@ import React from "react";
 import { useEffect, useRef, useState } from "react";
 import { ClipLoader } from "react-spinners";
 
-const BEREPLUSInput = ({ textareaRef, loading, sendQuery }) => {
+const BEREPLUSInput = ({ textareaRef, loading, sendQuery, isStreaming }) => {
   const [input, setInput] = useState("");
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef(null);
@@ -79,16 +79,18 @@ const BEREPLUSInput = ({ textareaRef, loading, sendQuery }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!input.trim()) return;
+    const streamingData = JSON.parse(
+      sessionStorage.getItem("ai_streaming_prompt")
+    );
+    const bufferData = JSON.parse(sessionStorage.getItem("ai_buffer_prompt"));
 
-    const inputData = JSON.parse(sessionStorage.getItem("ai_input_prompt"));
+    const dataChoice = isStreaming ? streamingData : bufferData;
+    const key = isStreaming ? "ai_streaming_prompt" : "ai_buffer_prompt";
 
-    if (inputData?.length > 0) {
-      sessionStorage.setItem(
-        "ai_input_prompt",
-        JSON.stringify([...inputData, input])
-      );
+    if (dataChoice?.length > 0) {
+      sessionStorage.setItem(key, JSON.stringify([...dataChoice, input]));
     } else {
-      sessionStorage.setItem("ai_input_prompt", JSON.stringify([input]));
+      sessionStorage.setItem(key, JSON.stringify([input]));
     }
 
     sendQuery(input);
@@ -114,7 +116,7 @@ const BEREPLUSInput = ({ textareaRef, loading, sendQuery }) => {
   };
 
   return (
-    <div className="relative rounded-lg text-white/50 bg-black border-2 border-white/10 py-1 px-4 flex items-center justify-between">
+    <div className="relative rounded-lg text-white/50 bg-black border-2 border-white/10 py-1 px-1 sm:px-4 flex items-center justify-between">
       {loading && <ThinkingText />}
       {isListening ? (
         <svg
@@ -154,50 +156,79 @@ const BEREPLUSInput = ({ textareaRef, loading, sendQuery }) => {
         onSubmit={handleSubmit}
         className="flex flex-row items-center justify-between gap-2 w-full h-[40px] bg-transparent"
       >
-        <div className="textArea flex items-center w-full h-full px-1 bg-transparent">
-          <textarea
-            id="chat_bot"
-            ref={textareaRef}
-            rows={1}
-            disabled={loading || isListening || isMobile}
-            className="resize-none border-none p-0 bg-transparent w-full h-full outline-none no-scrollbar tracking-wider font-thin break-words"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder={"Ask on..."}
-          />
+        <div className="flex flex-row items-center h-fit w-fit">
+          <p
+            id="streaming"
+            onClick={() => {
+              sessionStorage.setItem("ai_response_type", true);
+              window.location.reload(true);
+            }}
+            className={`${
+              isStreaming ? "text-blue-500" : ""
+            } text-[10px] hover:text-blue-500 transition-all duration-500 cursor-pointer`}
+          >
+            Streaming
+          </p>
+          <p className="mx-[3px] sm:mx-1">|</p>
+          <p
+            id="buffer"
+            onClick={() => {
+              sessionStorage.setItem("ai_response_type", false);
+              window.location.reload(true);
+            }}
+            className={`${
+              isStreaming ? "" : "text-blue-500"
+            } text-[10px] hover:text-blue-500 transition-all duration-500 cursor-pointer`}
+          >
+            Buffer
+          </p>
         </div>
-
-        <button
-          className="w-fit"
-          type="submit"
-          disabled={loading || isListening}
-        >
-          {loading ? (
-            <ClipLoader
-              color="#fff"
-              loading={loading}
-              cssOverride={override}
-              size={20}
-              aria-label="Loading Spinner"
-              data-testid="loader"
+        <div className="w-full flex flex-row items-center justify-between">
+          <div className="textArea flex items-center w-full h-full px-1 bg-transparent">
+            <textarea
+              id="chat_bot"
+              ref={textareaRef}
+              rows={1}
+              disabled={loading || isListening || isMobile}
+              className="resize-none border-none p-0 bg-transparent w-full h-full outline-none no-scrollbar tracking-wider font-thin break-words"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder={"Ask on..."}
             />
-          ) : (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1}
-              stroke="currentColor"
-              className="w-4 h-4 bg-black ml-2 hover:text-white/30 ease-in duration-300"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"
+          </div>
+
+          <button
+            className="w-fit"
+            type="submit"
+            disabled={loading || isListening}
+          >
+            {loading ? (
+              <ClipLoader
+                color="#fff"
+                loading={loading}
+                cssOverride={override}
+                size={20}
+                aria-label="Loading Spinner"
+                data-testid="loader"
               />
-            </svg>
-          )}
-        </button>
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1}
+                stroke="currentColor"
+                className="w-4 h-4 bg-black ml-2 hover:text-white/30 ease-in duration-300"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"
+                />
+              </svg>
+            )}
+          </button>
+        </div>
       </form>
     </div>
   );

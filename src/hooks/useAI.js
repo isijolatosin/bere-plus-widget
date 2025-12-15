@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { getUserLocation } from "./getUserLocation.js";
 import { isIMGUrlWorking } from "../utils/isIMGUrlWorking.js";
 
-export const useAI = (auth) => {
+export const useAI = (auth, isStreaming) => {
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState(null);
   const [error, setError] = useState(null);
@@ -16,6 +16,7 @@ export const useAI = (auth) => {
     try {
       const { city, country } = await getUserLocation(api_url);
 
+      // const res = await fetch("http://localhost:4000/analyze", {
       const res = await fetch(`${api_url}/analyze`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -24,39 +25,67 @@ export const useAI = (auth) => {
           location: `${city}, ${country}`,
           auth: auth,
           useMemory: true,
+          isStreaming,
         }),
       });
 
-      const result = await res.json();
+      if (isStreaming) {
+        if (!res.body) throw new Error("ReadableStream not supported");
 
-      // Fetch images if missing
-      const updatedResponses = await Promise.all(
-        (result?.response || []).map(async (resp) => {
-          const isWorkingUrl = await isIMGUrlWorking(resp?.image_url);
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
 
-          if (resp?.title && (!resp?.image_url || !isWorkingUrl)) {
-            try {
-              const imgRes = await fetch(
-                `${api_url}/images?keyword=${encodeURIComponent(
-                  resp.title
-                )}&num=1`
-              );
+        let text = "";
 
-              if (!imgRes.ok)
-                throw new Error(`Image fetch failed for ${resp.title}`);
-              const imgData = await imgRes.json();
-
-              return { ...resp, image_url: imgData.images?.[0] || "" };
-            } catch (err) {
-              console.error("Error fetching images for:", resp.title, err);
-              return { ...resp, image_url: "" };
-            }
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) {
+            const existingData =
+              JSON.parse(sessionStorage.getItem("ai_streaming_data")) || [];
+            const updateData = [...existingData, text];
+            sessionStorage.setItem(
+              "ai_streaming_data",
+              JSON.stringify(updateData)
+            );
+            break;
           }
-          return resp;
-        })
-      );
 
-      setResponse({ ...result, response: updatedResponses });
+          // Append each chunk as it arrives
+          text += decoder.decode(value, { stream: true });
+          setResponse(text);
+        }
+      } else {
+        const result = await res.json();
+
+        // Fetch images if missing
+        const updatedResponses = await Promise.all(
+          (result?.response || []).map(async (resp) => {
+            const isWorkingUrl = await isIMGUrlWorking(resp?.image_url);
+
+            if (resp?.title && (!resp?.image_url || !isWorkingUrl)) {
+              try {
+                const imgRes = await fetch(
+                  `${api_url}/images?keyword=${encodeURIComponent(
+                    resp.title
+                  )}&num=1`
+                );
+
+                if (!imgRes.ok)
+                  throw new Error(`Image fetch failed for ${resp.title}`);
+                const imgData = await imgRes.json();
+
+                return { ...resp, image_url: imgData.images?.[0] || "" };
+              } catch (err) {
+                console.error("Error fetching images for:", resp.title, err);
+                return { ...resp, image_url: "" };
+              }
+            }
+            return resp;
+          })
+        );
+
+        setResponse({ ...result, response: updatedResponses });
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error occurred");
     } finally {
@@ -65,16 +94,18 @@ export const useAI = (auth) => {
   };
 
   useEffect(() => {
-    if (response) {
-      const existingData =
-        JSON.parse(sessionStorage.getItem("ai_response_data")) || [];
+    if (!isStreaming) {
+      if (response) {
+        const existingData =
+          JSON.parse(sessionStorage.getItem("ai_response_data")) || [];
 
-      // Convert to array if it's an object
-      const updatedData = Array.isArray(existingData)
-        ? [...existingData, response]
-        : [existingData, response];
+        // Convert to array if it's an object
+        const updatedData = Array.isArray(existingData)
+          ? [...existingData, response]
+          : [existingData, response];
 
-      sessionStorage.setItem("ai_response_data", JSON.stringify(updatedData));
+        sessionStorage.setItem("ai_response_data", JSON.stringify(updatedData));
+      }
     }
   }, [response]);
 

@@ -8,11 +8,14 @@ import { Emotions } from "../utils/emotions";
 
 const SimpleText = ({ txt }) => <p className="leading-5">{txt}</p>;
 
-const BEREPLUSAIResponse = ({ response }) => {
+const BEREPLUSAIResponse = ({ compId, response }) => {
   if (!response) return null;
 
   return (
-    <div className=" bg-neutral-900 text-sm leading-5 text-white/50">
+    <div
+      id={compId}
+      className=" bg-neutral-900 text-sm leading-5 text-white/50"
+    >
       <div className="w-[90%] bg-white/5 rounded-lg p-3">
         <p
           className={`mt-2 bg-transparent tracking-widest border-l-[0.5px] pl-3 ${
@@ -54,7 +57,7 @@ const BEREPLUSAIResponse = ({ response }) => {
                     <img
                       src={resp?.image_url}
                       alt={resp?.title || ""}
-                      className="w-full h-[250px] object-cover object-center"
+                      className="w-full h-[250px] object-contain object-center"
                     />
                   )}
                 </div>

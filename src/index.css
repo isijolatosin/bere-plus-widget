@@ -9,18 +9,6 @@
   scrollbar-color: #757575 rgb(53, 53, 53, 0); /* thumb color | track color */
 }
 
-@layer utilities {
-  /* Hide scrollbar for Chrome, Safari and Opera */
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-  /* Hide scrollbar for IE, Edge and Firefox */
-  .no-scrollbar {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
-  }
-}
-
 .textArea {
   position: relative;
   overflow: hidden; /* ensures fades stay inside */
