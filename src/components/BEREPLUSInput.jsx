@@ -1,12 +1,21 @@
 import React from "react";
+import * as Yup from "yup";
+import { Formik, Field, Form } from "formik";
 import { useEffect, useRef, useState } from "react";
 import { ClipLoader } from "react-spinners";
 
 const BEREPLUSInput = ({ textareaRef, loading, sendQuery, isStreaming }) => {
   const [input, setInput] = useState("");
+  const [isBadWords, setIsBadWords] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef(null);
   const isMobile = window.matchMedia("(max-width:576px)").matches;
+  const FormSchema = Yup.object().shape({
+    message: Yup.string()
+      .min(10, "Too Short!")
+      .max(1000, "Too Long!")
+      .required("Required"),
+  });
 
   useEffect(() => {
     const SpeechRecognition =
@@ -77,47 +86,113 @@ const BEREPLUSInput = ({ textareaRef, loading, sendQuery, isStreaming }) => {
   }, [input]);
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!input.trim()) return;
-    const streamingData = JSON.parse(
-      sessionStorage.getItem("ai_streaming_prompt")
-    );
-    const bufferData = JSON.parse(sessionStorage.getItem("ai_buffer_prompt"));
+    // Treat user input as untrusted. Validate structure,
+    // constrain length, filter malicious patterns, isolate intent,
+    // and wrap prompts so user input can’t override system instructions.
 
-    const dataChoice = isStreaming ? streamingData : bufferData;
-    const key = isStreaming ? "ai_streaming_prompt" : "ai_buffer_prompt";
+    try {
+      let inputValue = e.message;
 
-    if (dataChoice?.length > 0) {
-      sessionStorage.setItem(key, JSON.stringify([...dataChoice, input]));
-    } else {
-      sessionStorage.setItem(key, JSON.stringify([input]));
+      if (input) {
+        e?.preventDefault();
+        inputValue = input;
+      }
+
+      const bannedPatterns = /ignore.*instruction|system prompt|jailbreak/i;
+      if (bannedPatterns.test(inputValue)) {
+        setIsBadWords(true);
+        return;
+      }
+
+      const streamingData = JSON.parse(
+        sessionStorage.getItem("ai_streaming_prompt")
+      );
+      const bufferData = JSON.parse(sessionStorage.getItem("ai_buffer_prompt"));
+
+      const dataChoice = isStreaming ? streamingData : bufferData;
+      const key = isStreaming ? "ai_streaming_prompt" : "ai_buffer_prompt";
+      const normalizeInput = inputValue
+        .normalize("NFKC")
+        .replace(/[\u200B-\u200D\uFEFF]/g, "");
+
+      if (dataChoice?.length > 0) {
+        sessionStorage.setItem(
+          key,
+          JSON.stringify([...dataChoice, normalizeInput])
+        );
+      } else {
+        sessionStorage.setItem(key, JSON.stringify([normalizeInput]));
+      }
+
+      sendQuery(normalizeInput);
+      setInput("");
+    } catch (error) {
+      console.error("Error saving request:", error);
     }
-
-    sendQuery(input);
-    setInput("");
   };
 
-  const ThinkingText = () => {
+  const ThinkingText = ({ text, classnameColor }) => {
     return (
       <div
-        className="
-        absolute 
-        top-[-40%]
-        left-0 z-20
-        text-sm font-thin
+        className={`absolute
+        z-20 font-thin
         bg-gradient-text bg-200%
-        bg-clip-text text-transparent
-        animate-gradient-move
-      "
+        bg-clip-text 
+        ${classnameColor}
+        animate-gradient-move`}
       >
-        Thinking...
+        {text}
       </div>
     );
   };
 
   return (
-    <div className="relative rounded-lg text-white/50 bg-black border-2 border-white/10 py-1 px-1 sm:px-4 flex items-center justify-between">
-      {loading && <ThinkingText />}
+    <div className="relative rounded-lg text-white/50 bg-black border-2 border-white/10 px-1 sm:px-2 flex items-center justify-between">
+      {loading && (
+        <ThinkingText
+          text="Thinking..."
+          classnameColor="text-transparent left-0 text-sm top-[-50%]"
+        />
+      )}
+      {input?.length > 1001 && (
+        <ThinkingText
+          text="prompt is too long..."
+          classnameColor="text-red-500 right-5 italic tracking-widest text-[10px] top-[-40%]"
+        />
+      )}
+      {isBadWords && (
+        <ThinkingText
+          text="Your prompt contains prohibited words..."
+          classnameColor="text-red-500 right-5 italic tracking-widest text-[10px] top-[-40%]"
+        />
+      )}
+      <div className="flex flex-row items-center h-fit w-fit mr-3">
+        <p
+          id="streaming"
+          onClick={() => {
+            sessionStorage.setItem("ai_response_type", true);
+            window.location.reload(true);
+          }}
+          className={`${
+            isStreaming ? "text-blue-500" : ""
+          } text-[10px] hover:text-blue-500 transition-all duration-500 cursor-pointer`}
+        >
+          Stream
+        </p>
+        <p className="mx-[3px] sm:mx-[4px]">|</p>
+        <p
+          id="buffer"
+          onClick={() => {
+            sessionStorage.setItem("ai_response_type", false);
+            window.location.reload(true);
+          }}
+          className={`${
+            isStreaming ? "" : "text-blue-500"
+          } text-[10px] hover:text-blue-500 transition-all duration-500 cursor-pointer`}
+        >
+          Buffer
+        </p>
+      </div>
       {isListening ? (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -152,84 +227,125 @@ const BEREPLUSInput = ({ textareaRef, loading, sendQuery, isStreaming }) => {
         </svg>
       )}
 
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-row items-center justify-between gap-2 w-full h-[40px] bg-transparent"
+      <Formik
+        initialValues={{
+          message: "",
+        }}
+        validationSchema={FormSchema}
+        onSubmit={async (values, { resetForm }) => {
+          handleSubmit(values);
+          resetForm();
+        }}
+        className=""
       >
-        <div className="flex flex-row items-center h-fit w-fit">
-          <p
-            id="streaming"
-            onClick={() => {
-              sessionStorage.setItem("ai_response_type", true);
-              window.location.reload(true);
-            }}
-            className={`${
-              isStreaming ? "text-blue-500" : ""
-            } text-[10px] hover:text-blue-500 transition-all duration-500 cursor-pointer`}
-          >
-            Streaming
-          </p>
-          <p className="mx-[3px] sm:mx-1">|</p>
-          <p
-            id="buffer"
-            onClick={() => {
-              sessionStorage.setItem("ai_response_type", false);
-              window.location.reload(true);
-            }}
-            className={`${
-              isStreaming ? "" : "text-blue-500"
-            } text-[10px] hover:text-blue-500 transition-all duration-500 cursor-pointer`}
-          >
-            Buffer
-          </p>
-        </div>
-        <div className="w-full flex flex-row items-center justify-between">
-          <div className="textArea flex items-center w-full h-full px-1 bg-transparent">
-            <textarea
-              id="chat_bot"
-              ref={textareaRef}
-              rows={1}
-              disabled={loading || isListening || isMobile}
-              className="resize-none border-none p-0 bg-transparent w-full h-full outline-none no-scrollbar tracking-wider font-thin break-words"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder={"Ask on..."}
-            />
-          </div>
-
-          <button
-            className="w-fit"
-            type="submit"
-            disabled={loading || isListening}
-          >
-            {loading ? (
-              <ClipLoader
-                color="#fff"
-                loading={loading}
-                cssOverride={override}
-                size={20}
-                aria-label="Loading Spinner"
-                data-testid="loader"
-              />
-            ) : (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1}
-                stroke="currentColor"
-                className="w-4 h-4 bg-black ml-2 hover:text-white/30 ease-in duration-300"
+        {({ errors, touched }) => (
+          <Form className="flex flex-row items-center justify-between gap-2 w-full h-[40px] bg-transparent">
+            <div className="w-full h-full flex flex-row items-center justify-between">
+              <Field
+                name="message"
+                className="textArea flex items-center w-full px-1 bg-transparent"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"
-                />
-              </svg>
-            )}
-          </button>
-        </div>
-      </form>
+                {({
+                  field, // { name, value, onChange, onBlur }
+                  form: { touched, errors }, // also values, setXXXX, handleXXXX, dirty, isValid, status, etc.
+                  meta,
+                }) => (
+                  <div className="relative w-full h-full flex items-center">
+                    {input && (
+                      <div className="absolute left-0 w-[100%] h-[90%] overflow-y-scroll bg-black pl-1">
+                        <p className="whitespace-pre-wrap break-words leading-[16px] h-full">
+                          {input}
+                        </p>
+                      </div>
+                    )}
+                    <textarea
+                      id="chat_bot"
+                      ref={textareaRef}
+                      rows={1}
+                      {...field}
+                      disabled={loading || isListening || isMobile}
+                      className={`resize-none border-none rounded-sm p-0 pl-1 bg-transparent h-full w-full outline-none no-scrollbar tracking-wider font-thin break-words ${
+                        (meta.touched && meta.error) ||
+                        input?.length > 1000 ||
+                        isBadWords
+                          ? "bg-red-900/30"
+                          : "bg-black"
+                      }`}
+                      placeholder={"Ask on..."}
+                    />
+                  </div>
+                )}
+              </Field>
+              {input ? (
+                <button
+                  className="w-fit"
+                  type="submit"
+                  disabled={loading || isListening || input?.length > 1000}
+                  onClick={handleSubmit}
+                >
+                  {loading ? (
+                    <ClipLoader
+                      color="#fff"
+                      loading={loading}
+                      cssOverride={override}
+                      size={20}
+                      aria-label="Loading Spinner"
+                      data-testid="loader"
+                    />
+                  ) : (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1}
+                      stroke="currentColor"
+                      className="w-4 h-4 bg-black ml-2 hover:text-white/30 ease-in duration-300"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"
+                      />
+                    </svg>
+                  )}
+                </button>
+              ) : (
+                <button
+                  className="w-fit"
+                  type="submit"
+                  disabled={loading || isListening}
+                >
+                  {loading ? (
+                    <ClipLoader
+                      color="#fff"
+                      loading={loading}
+                      cssOverride={override}
+                      size={20}
+                      aria-label="Loading Spinner"
+                      data-testid="loader"
+                    />
+                  ) : (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1}
+                      stroke="currentColor"
+                      className="w-4 h-4 bg-black ml-2 hover:text-white/30 ease-in duration-300"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"
+                      />
+                    </svg>
+                  )}
+                </button>
+              )}
+            </div>
+          </Form>
+        )}
+      </Formik>
     </div>
   );
 };
