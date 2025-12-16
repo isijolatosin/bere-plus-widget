@@ -93,7 +93,7 @@ export const BEREPLUSWidget = ({ user }) => {
   }, [_isStreaming]);
 
   const MemoizedResponse = useMemo(() => {
-    if (_isStreaming === "true") {
+    if (_isStreaming) {
       return (
         <div className="rounded-lg border border-white/10 bg-neutral-900 px-4 py-4 w-[600px] max-w-[100%] h-fit max-h-[70vh] sm:max-h-[90vh] overflow-scroll no-scrollbar text-sm leading-5 text-white/50 flex flex-col">
           {responseData?.length > 0 &&
