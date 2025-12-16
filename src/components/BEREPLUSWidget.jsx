@@ -8,12 +8,12 @@ import FadeInSection from "./Framer";
 import BEREPLUSAIResponse from "./BEREPLUSAIResponse";
 import BEREPLUSInput from "./BEREPLUSInput";
 
-export const BEREPLUSWidget = ({ auth }) => {
+export const BEREPLUSWidget = ({ user }) => {
   const bottomRef = useRef(null);
   const textareaRef = useRef(null); // fixed
   const [responseData, setResponsedata] = useState([]);
   const isStreaming = sessionStorage.getItem("ai_response_type") === "true";
-  const { sendQuery, response, loading, error } = useAI(auth, isStreaming);
+  const { sendQuery, response, loading, error } = useAI(user, isStreaming);
   const aiIBufferPrompt = JSON.parse(
     sessionStorage.getItem("ai_buffer_prompt")
   );
@@ -89,7 +89,13 @@ export const BEREPLUSWidget = ({ auth }) => {
                 <div className="border-t-[0.5px] border-white/5 py-1">
                   {res?.split("\n\n").map((r, idx) => (
                     <p key={`0_${idx}`} className="my-3">
-                      {r}
+                      {r?.includes('"error":') ? (
+                        <span className="bg-red-900/20 px-2 py-1 rounded-sm">
+                          {r?.split('"error":')[1].replace(/["}]/g, "")}
+                        </span>
+                      ) : (
+                        r
+                      )}
                     </p>
                   ))}
                 </div>
@@ -122,11 +128,20 @@ export const BEREPLUSWidget = ({ auth }) => {
                 {aiIBufferPrompt?.[index]}
               </p>
             </div>
-            <BEREPLUSAIResponse
-              compId={`${index}_id`}
-              key={index}
-              response={res}
-            />
+            {res?.error ? (
+              <div
+                id={`${index}_id`}
+                className="bg-red-900/20 pl-2 py-1 rounded-sm"
+              >
+                <p>{res?.error}</p>
+              </div>
+            ) : (
+              <BEREPLUSAIResponse
+                compId={`${index}_id`}
+                key={index}
+                response={res}
+              />
+            )}
           </div>
         ))}
       </div>
@@ -139,7 +154,7 @@ export const BEREPLUSWidget = ({ auth }) => {
         <FadeInSection>
           <div className="mb-2 rounded-full bg-black mx-auto w-full">
             <p className="text-center text-sm tracking-widest text-red-500 rounded-full py-1">
-              {error}
+              {error ?? error.error}
             </p>
           </div>
         </FadeInSection>

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { getUserLocation } from "./getUserLocation.js";
 import { isIMGUrlWorking } from "../utils/isIMGUrlWorking.js";
 
-export const useAI = (auth, isStreaming) => {
+export const useAI = (user, isStreaming) => {
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState(null);
   const [error, setError] = useState(null);
@@ -23,7 +23,7 @@ export const useAI = (auth, isStreaming) => {
         body: JSON.stringify({
           text: query,
           location: `${city}, ${country}`,
-          auth: auth,
+          user: user,
           useMemory: true,
           isStreaming,
         }),
@@ -39,10 +39,17 @@ export const useAI = (auth, isStreaming) => {
 
         while (true) {
           const { value, done } = await reader.read();
+
+          // ON DONE ***********
           if (done) {
             const existingData =
               JSON.parse(sessionStorage.getItem("ai_streaming_data")) || [];
-            const updateData = [...existingData, text];
+
+            const updateData = [
+              ...existingData,
+              text.replace(/data:\s*\[DONE\]/g, ""),
+            ];
+
             sessionStorage.setItem(
               "ai_streaming_data",
               JSON.stringify(updateData)
@@ -52,7 +59,13 @@ export const useAI = (auth, isStreaming) => {
 
           // Append each chunk as it arrives
           text += decoder.decode(value, { stream: true });
-          setResponse(text);
+
+          if (text.includes("[TOKEN_LIMIT_EXCEEDED]")) {
+            alert("Token limit reached");
+            break;
+          }
+
+          setResponse(text.replace(/data:\s*\[DONE\]/g, ""));
         }
       } else {
         const result = await res.json();
@@ -83,7 +96,6 @@ export const useAI = (auth, isStreaming) => {
             return resp;
           })
         );
-
         setResponse({ ...result, response: updatedResponses });
       }
     } catch (err) {

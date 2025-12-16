@@ -7,7 +7,7 @@ function App({
   wrapperClassnames = "",
   iconClassnames = "",
   onclick,
-  auth,
+  user,
 }) {
   const Icon = ({ classnames, onclick }) => (
     <svg
@@ -30,7 +30,7 @@ function App({
   return (
     <div className={wrapperClassnames}>
       <div className={providedClassnames}>
-        <BEREPLUSWidget auth={auth} />
+        <BEREPLUSWidget user={user} />
       </div>
       <Icon classnames={iconClassnames} onclick={onclick} />
     </div>
