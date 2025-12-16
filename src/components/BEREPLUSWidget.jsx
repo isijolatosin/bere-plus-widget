@@ -7,13 +7,19 @@ import { useAI } from "../hooks/useAI";
 import FadeInSection from "./Framer";
 import BEREPLUSAIResponse from "./BEREPLUSAIResponse";
 import BEREPLUSInput from "./BEREPLUSInput";
+import { useLocalStorageState } from "../utils/useLocalStorageState";
 
 export const BEREPLUSWidget = ({ user }) => {
   const bottomRef = useRef(null);
   const textareaRef = useRef(null); // fixed
   const [responseData, setResponsedata] = useState([]);
-  const isStreaming = sessionStorage.getItem("ai_response_type") === "true";
-  const { sendQuery, response, loading, error } = useAI(user, isStreaming);
+  const [isStreaming, setValue] = useLocalStorageState(
+    "ai_response_type",
+    null
+  );
+  const _isStreaming = String(isStreaming) === "true";
+  // const isStreaming = sessionStorage.getItem("ai_response_type") === "true";
+  const { sendQuery, response, loading, error } = useAI(user, _isStreaming);
   const aiIBufferPrompt = JSON.parse(
     sessionStorage.getItem("ai_buffer_prompt")
   );
@@ -24,11 +30,10 @@ export const BEREPLUSWidget = ({ user }) => {
 
   useEffect(() => {
     // Get stored data
-    const storedData = sessionStorage.getItem("ai_response_data");
-    const streamingData = JSON.parse(
-      sessionStorage.getItem("ai_streaming_data")
-    );
-    if (storedData && !isStreaming) {
+    const storedData = sessionStorage.getItem("ai_response_data") || [];
+    const streamingData =
+      JSON.parse(sessionStorage.getItem("ai_streaming_data")) || [];
+    if (!_isStreaming) {
       try {
         const parsed = JSON.parse(storedData);
 
@@ -45,15 +50,17 @@ export const BEREPLUSWidget = ({ user }) => {
         console.error("Failed to parse stored AI response data:", e);
         setResponsedata([]);
       }
-    } else if (streamingData && isStreaming) {
+    }
+
+    if (_isStreaming) {
       setResponsedata(streamingData);
     }
-  }, [response]);
+  }, [response, _isStreaming]);
 
   // Memoize the rendered list of responses
   useEffect(
     () => {
-      if (isStreaming) {
+      if (_isStreaming) {
         bottomRef.current?.scrollIntoView({
           behavior: "smooth",
           block: "end",
@@ -71,11 +78,22 @@ export const BEREPLUSWidget = ({ user }) => {
       }
     },
     [responseData, response],
-    isStreaming
+    _isStreaming
   );
 
+  useEffect(() => {
+    const onStorage = (e) => {
+      if (e.key === "ai_response_type") {
+        setValue(JSON.parse(e.newValue));
+      }
+    };
+
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [_isStreaming]);
+
   const MemoizedResponse = useMemo(() => {
-    if (isStreaming) {
+    if (_isStreaming === "true") {
       return (
         <div className="rounded-lg border border-white/10 bg-neutral-900 px-4 py-4 w-[600px] max-w-[100%] h-fit max-h-[70vh] sm:max-h-[90vh] overflow-scroll no-scrollbar text-sm leading-5 text-white/50 flex flex-col">
           {responseData?.length > 0 &&
@@ -120,7 +138,7 @@ export const BEREPLUSWidget = ({ user }) => {
       );
     }
     return (
-      <div className="rounded-lg border border-white/10 bg-neutral-900 px-4 py-4 h-[70vh] sm:h-[90vh] overflow-scroll no-scrollbar text-sm leading-5 text-white/50 flex flex-col">
+      <div className="rounded-lg border border-white/10 bg-black px-4 py-4 h-[70vh] sm:h-[90vh] overflow-scroll no-scrollbar text-sm leading-5 text-white/50 flex flex-col">
         {responseData?.map((res, index) => (
           <div key={index}>
             <div className="w-full flex py-5">
@@ -162,10 +180,10 @@ export const BEREPLUSWidget = ({ user }) => {
       <Tippy
         content={MemoizedResponse}
         placement="top"
-        visible={(response && isStreaming) || responseData?.length > 0}
-        animation={isStreaming ? "" : "fade"}
+        visible={(response && _isStreaming) || responseData?.length > 0}
+        animation={_isStreaming ? "" : "fade"}
         duration={3000}
-        arrow={isStreaming ? false : true}
+        arrow={!_isStreaming}
         interactive={true}
         maxWidth="none"
         popperOptions={{
@@ -186,7 +204,8 @@ export const BEREPLUSWidget = ({ user }) => {
             textareaRef={textareaRef}
             loading={loading}
             sendQuery={sendQuery}
-            isStreaming={isStreaming}
+            isStreaming={_isStreaming}
+            setValue={setValue}
           />
         </div>
       </Tippy>

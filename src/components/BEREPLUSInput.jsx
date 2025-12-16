@@ -4,7 +4,13 @@ import { Formik, Field, Form } from "formik";
 import { useEffect, useRef, useState } from "react";
 import { ClipLoader } from "react-spinners";
 
-const BEREPLUSInput = ({ textareaRef, loading, sendQuery, isStreaming }) => {
+const BEREPLUSInput = ({
+  textareaRef,
+  loading,
+  sendQuery,
+  isStreaming,
+  setValue,
+}) => {
   const [input, setInput] = useState("");
   const [isBadWords, setIsBadWords] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -171,10 +177,10 @@ const BEREPLUSInput = ({ textareaRef, loading, sendQuery, isStreaming }) => {
           id="streaming"
           onClick={() => {
             sessionStorage.setItem("ai_response_type", true);
-            window.location.reload(true);
+            setValue(true);
           }}
           className={`${
-            isStreaming ? "text-blue-500" : ""
+            String(isStreaming) === "true" ? "text-blue-500" : ""
           } text-[10px] hover:text-blue-500 transition-all duration-500 cursor-pointer`}
         >
           Stream
@@ -184,10 +190,10 @@ const BEREPLUSInput = ({ textareaRef, loading, sendQuery, isStreaming }) => {
           id="buffer"
           onClick={() => {
             sessionStorage.setItem("ai_response_type", false);
-            window.location.reload(true);
+            setValue(false);
           }}
           className={`${
-            isStreaming ? "" : "text-blue-500"
+            String(isStreaming) === "true" ? "" : "text-blue-500"
           } text-[10px] hover:text-blue-500 transition-all duration-500 cursor-pointer`}
         >
           Buffer
