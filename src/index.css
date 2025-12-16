@@ -75,3 +75,7 @@
   text-overflow: ellipsis; /* Add the "…" at the end */
   display: block; /* Or inline-block / flex item */
 }
+
+.tippy-box {
+  transition: width 0.15s ease;
+}

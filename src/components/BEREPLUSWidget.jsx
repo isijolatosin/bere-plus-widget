@@ -167,6 +167,19 @@ export const BEREPLUSWidget = ({ user }) => {
         duration={3000}
         arrow={isStreaming ? false : true}
         interactive={true}
+        maxWidth="none"
+        popperOptions={{
+          modifiers: [
+            {
+              name: "size",
+              enabled: true,
+              phase: "beforeWrite",
+              fn({ state }) {
+                state.styles.popper.width = `${state.rects.reference.width}px`;
+              },
+            },
+          ],
+        }}
       >
         <div>
           <BEREPLUSInput

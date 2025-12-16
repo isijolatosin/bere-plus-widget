@@ -27,8 +27,7 @@ if (process.env.NODE_ENV === "development") {
     iconClassnames:
       "w-6 h-6 absolute top-0 left-0 ml-5 mt-2 text-white/50 z-10 cursor-pointer hover:text-white/30 transition-all duration-300",
     onclick: () => console.log("first"),
-    user: { id: "12345", intent: "", plan: "pro" },
+    user: { id: "12345", intent: "", plan: "test_plan" },
     useMemory: true,
-    isStreaming: true,
   });
 }
