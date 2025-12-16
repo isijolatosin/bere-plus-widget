@@ -105,17 +105,18 @@ export const BEREPLUSWidget = ({ user }) => {
                   </p>
                 </div>
                 <div className="border-t-[0.5px] border-white/5 py-1">
-                  {res?.split("\n\n").map((r, idx) => (
-                    <p key={`0_${idx}`} className="my-3">
-                      {r?.includes('"error":') ? (
-                        <span className="bg-red-900/20 px-2 py-1 rounded-sm">
-                          {r?.split('"error":')[1].replace(/["}]/g, "")}
-                        </span>
-                      ) : (
-                        r
-                      )}
-                    </p>
-                  ))}
+                  {typeof res === "string" &&
+                    res.split("\n\n").map((r, idx) => (
+                      <p key={`0_${idx}`} className="my-3">
+                        {r.includes('"error":') ? (
+                          <span className="bg-red-900/20 px-2 py-1 rounded-sm">
+                            {r.split('"error":')[1].replace(/["}]/g, "")}
+                          </span>
+                        ) : (
+                          r
+                        )}
+                      </p>
+                    ))}
                 </div>
               </div>
             ))}
